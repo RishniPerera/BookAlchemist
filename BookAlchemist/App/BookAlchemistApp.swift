@@ -20,19 +20,33 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct BookAlchemistApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
+    // Track onboarding completion (saves to device memory)
+        @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
+    
     // Using AppStorage to track if the user has seen onboarding
       // Default is false for new users
     @State private var isLoggedIn: Bool = false
     
+    // Track splash screen state
+        @State private var isSplashActive: Bool = true
+
+    
     var body: some Scene {
         WindowGroup {
-            if isLoggedIn {
-                MainTabView()
-            } else {
-               
-                Text("Splash / Onboarding goes here")
-                    .onAppear {
-                        // isLoggedIn = true
+            // navigation logic
+                       ZStack {
+                           if isSplashActive {
+                               SplashView(isActive: $isSplashActive)
+                                   .transition(.opacity)
+                           } else {
+                               if isLoggedIn {
+                                   MainTabView()
+                               } else if hasSeenOnboarding {
+                                   LoginView(isLoggedIn: $isLoggedIn)
+                               } else {
+                                   OnboardingView(isOnboarded: $hasSeenOnboarding)
+                               }
+
                     }
             }
         }
