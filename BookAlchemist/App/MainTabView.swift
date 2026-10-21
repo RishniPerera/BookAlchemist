@@ -11,7 +11,7 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             // Home
-            Text("Home Dashboard Placeholder")
+            HomeView()
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
