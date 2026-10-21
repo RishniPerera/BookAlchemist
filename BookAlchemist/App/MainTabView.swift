@@ -23,19 +23,19 @@ struct MainTabView: View {
                 }
             
             // Challenges
-            Text("Challenges Placeholder")
+            ChallengesView()
                 .tabItem {
                     Label("Challenges", systemImage: "medal")
                 }
             
             // Community
-            Text("Community Placeholder")
+            CommunityView()
                 .tabItem {
                     Label("Community", systemImage: "bubble.left")
                 }
             
             // Profile
-            Text("Profile Placeholder")
+            ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person")
                 }
