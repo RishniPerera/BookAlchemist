@@ -10,11 +10,13 @@ import Foundation
 class BookAPIService {
     static let shared = BookAPIService()
     
-    // search the Google Books API
     func searchBooks(query: String) async throws -> [Book] {
-        // Replace spaces with '+' for the URL
-        let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
-        let urlString = "https://www.googleapis.com/books/v1/volumes?q=\(formattedQuery)&maxResults=20"
+        // encode the text so spaces and symbols don't break the URL
+        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+            return []
+        }
+        
+        let urlString = "https://www.googleapis.com/books/v1/volumes?q=\(encodedQuery)&maxResults=20&key=AIzaSyDQ_fQcPRJShueJRFw5c_PzWR4IckVK3vU"
         
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
@@ -22,23 +24,28 @@ class BookAPIService {
         
         let (data, _) = try await URLSession.shared.data(from: url)
         
-        // Decode the JSON response
+        // Print the raw JSON in Xcode console to see what Google is actually sending
+        if let jsonString = String(data: data, encoding: .utf8) {
+            print("API Response: \(jsonString.prefix(200))...") // Just print the start
+        }
+        
         let decodedResponse = try JSONDecoder().decode(GoogleBooksResponse.self, from: data)
         
-        // Map the API items to custom Book model
         return decodedResponse.items?.compactMap { item in
-            let volumeInfo = item.volumeInfo
+            guard let volumeInfo = item.volumeInfo else { return nil }
             
-            // Sometimes the API doesn't return an author or page count, so provide defaults
+            // Safely unwrap everything
+            let title = volumeInfo.title ?? "Unknown Title"
             let author = volumeInfo.authors?.first ?? "Unknown Author"
             let pages = volumeInfo.pageCount ?? 100
             
-            // Get the best available cover image
-            let imageURL = volumeInfo.imageLinks?.thumbnail ?? volumeInfo.imageLinks?.smallThumbnail
+            // Google sometimes uses "http" instead of "https" for images. iOS blocks "http" by default.
+            var imageURL = volumeInfo.imageLinks?.thumbnail ?? volumeInfo.imageLinks?.smallThumbnail
+            imageURL = imageURL?.replacingOccurrences(of: "http://", with: "https://")
             
             return Book(
-                id: item.id,
-                title: volumeInfo.title,
+                id: item.id ?? UUID().uuidString,
+                title: title,
                 author: author,
                 coverURL: imageURL,
                 totalPages: pages
@@ -47,18 +54,18 @@ class BookAPIService {
     }
 }
 
-// API Response Models (Private to this file)
+// API Response Models (Made optional to prevent crashes)
 struct GoogleBooksResponse: Codable {
     let items: [GoogleBookItem]?
 }
 
 struct GoogleBookItem: Codable {
-    let id: String
-    let volumeInfo: VolumeInfo
+    let id: String?
+    let volumeInfo: VolumeInfo?
 }
 
 struct VolumeInfo: Codable {
-    let title: String
+    let title: String?
     let authors: [String]?
     let pageCount: Int?
     let imageLinks: ImageLinks?

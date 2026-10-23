@@ -265,11 +265,18 @@ struct HomeView: View {
             .navigationDestination(for: AppRoute.self) { route in
                 switch route {
                 case .bookDetails:
-                    BookDetailsView()
+                    BookDetailsView(book: Book(
+                      id: "mock_1",
+                       title: "The Midnight Odyssey",
+                        author: "Alistair Finch",
+                        coverURL: nil,
+                        totalPages: 300
+                        ))
+           
                 case .updateProgress:
                     UpdateProgressView()
                 case .challenges:
-                    Text("Challenges View (We'll build this next phase)")
+                    Text("Challenges View")
                 }
             }
             // Start listening for live updates when the view appears
