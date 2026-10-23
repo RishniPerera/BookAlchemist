@@ -17,7 +17,7 @@ struct MainTabView: View {
                 }
             
             // Search
-            Text("Search Placeholder")
+            SearchView()
                 .tabItem {
                     Label("Search", systemImage: "magnifyingglass")
                 }
