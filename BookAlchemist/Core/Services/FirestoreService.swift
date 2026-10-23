@@ -11,24 +11,37 @@ import FirebaseFirestore
 class FirestoreService {
     static let shared = FirestoreService()
     
-    private let db = Firestore.firestore()
-    
-    // Fetch the user profile from Firebase
-    func fetchUserProfile(userId: String) async throws -> UserProfile {
-        let document = try await db.collection("users").document(userId).getDocument()
-        return try document.data(as: UserProfile.self)
+
+        private let db = Firestore.firestore()
+        
+        // Fetch the user profile from Firebase
+        func fetchUserProfile(userId: String) async throws -> UserProfile {
+            let document = try await db.collection("users").document(userId).getDocument()
+            return try document.data(as: UserProfile.self)
+        }
+        
+        // Update XP and Level
+        func updateUserStats(userId: String, xp: Int, level: Int) async throws {
+            try await db.collection("users").document(userId).updateData([
+                "xp": xp,
+                "currentLevel": level
+            ])
+        }
+        
+        // Save a book to the user's library
+        func saveBookToLibrary(userId: String, book: Book) async throws {
+            try await db.collection("users").document(userId).collection("library").document(book.id).setData(from: book)
+        }
+        
+        // Fetch all books from the user's library
+        // Note: This function is now INSIDE the class, right before the final closing brace.
+        func fetchUserLibrary(userId: String) async throws -> [Book] {
+            let snapshot = try await db.collection("users").document(userId).collection("library").getDocuments()
+            
+            // Decode the documents into our Book model
+            return snapshot.documents.compactMap { document in
+                try? document.data(as: Book.self)
+            }
+        }
     }
-    
-    // Update XP and Level
-    func updateUserStats(userId: String, xp: Int, level: Int) async throws {
-        try await db.collection("users").document(userId).updateData([
-            "xp": xp,
-            "currentLevel": level
-        ])
-    }
-    
-    // Save a book to the user's library
-    func saveBookToLibrary(userId: String, book: Book) async throws {
-        try await db.collection("users").document(userId).collection("library").document(book.id).setData(from: book)
-    }
-}
+    // <--- Notice how this closing brace is now at the very bottom, after fetchUserLibrary

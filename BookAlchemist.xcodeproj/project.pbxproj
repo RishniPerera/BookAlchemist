@@ -50,9 +50,22 @@
 		E728CA9A307F4FC800DED6BB /* BookAlchemistUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BookAlchemistUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E7E12D08308B873600AC31BE /* Exceptions for "BookAlchemist" folder in "BookAlchemist" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E728CA82307F4FC500DED6BB /* BookAlchemist */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E728CA85307F4FC500DED6BB /* BookAlchemist */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E7E12D08308B873600AC31BE /* Exceptions for "BookAlchemist" folder in "BookAlchemist" target */,
+			);
 			path = BookAlchemist;
 			sourceTree = "<group>";
 		};
@@ -465,6 +478,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookAlchemist/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = ": Book Alchemist uses Face ID to securely protect your personal reading library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -499,6 +514,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookAlchemist/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = ": Book Alchemist uses Face ID to securely protect your personal reading library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

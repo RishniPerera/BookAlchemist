@@ -3,20 +3,18 @@
 import Foundation
 
 struct Book: Identifiable, Codable, Hashable {
+    // If the API doesn't give an ID, generate one
     var id: String = UUID().uuidString
     var title: String
     var author: String
-    var coverImageName: String
+    var coverURL: String? // Used for AsyncImage from the API
     var totalPages: Int
+    
+    // These are for the user's personal library
     var currentPage: Int = 0
-    var status: ReadingStatus = .wantToRead
+    var status: String = "Want to Read"
     
-    enum ReadingStatus: String, Codable, CaseIterable {
-        case wantToRead = "Want to Read"
-        case reading = "Reading"
-        case completed = "Completed"
-    }
-    
+    // This calculates the progress bar
     var progressPercentage: Int {
         guard totalPages > 0 else { return 0 }
         return Int((Double(currentPage) / Double(totalPages)) * 100)

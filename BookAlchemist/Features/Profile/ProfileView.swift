@@ -69,6 +69,12 @@ struct ProfileView: View {
                                 .padding(.horizontal)
                             
                             VStack(spacing: 0) {
+                                // Added Navigation Link for My Library here
+                                NavigationLink(destination: MyLibraryView()) {
+                                    settingRow(icon: "books.vertical", title: "My Library", value: "")
+                                }
+                                Divider().padding(.leading, 45)
+                                
                                 settingRow(icon: "target", title: "Reading Goal", value: "24 books / year")
                                 Divider().padding(.leading, 45)
                                 settingRow(icon: "clock", title: "Reading Reminder", value: "Daily at 9:00 PM")
@@ -129,7 +135,6 @@ struct ProfileView: View {
                     }
                 }
             }
-           
             .task {
                 if let userId = AuthService.shared.currentUserId {
                     if let profile = try? await FirestoreService.shared.fetchUserProfile(userId: userId) {
@@ -151,6 +156,7 @@ struct ProfileView: View {
         }
     }
     
+    // Helper to keep the settings list clean
     private func settingRow(icon: String, title: String, value: String) -> some View {
         HStack {
             Image(systemName: icon)
@@ -158,6 +164,7 @@ struct ProfileView: View {
                 .frame(width: 30)
             Text(title)
                 .font(.subheadline)
+                .foregroundColor(.appTextPrimary)
             Spacer()
             Text(value)
                 .font(.caption)
