@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @State private var userProfile: UserProfile?
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -34,7 +36,7 @@ struct ProfileView: View {
                                         .padding(5)
                                 )
                             
-                            Text("Reader")
+                            Text(userProfile?.name ?? "Reader")
                                 .font(.title2.bold())
                             
                             Text("Member since October 2024")
@@ -46,9 +48,9 @@ struct ProfileView: View {
                             // Stats Row
                             HStack(spacing: 30) {
                                 statItem(value: "17", label: "Books Read")
-                                statItem(value: "12d", label: "Streak")
-                                statItem(value: "5", label: "Reading Level")
-                                statItem(value: "4.8k", label: "Pages")
+                                statItem(value: "\(userProfile?.readingStreak ?? 0)d", label: "Streak")
+                                statItem(value: "\(userProfile?.currentLevel ?? 1)", label: "Level")
+                                statItem(value: "\(userProfile?.xp ?? 0)", label: "Total XP")
                             }
                             .padding(.top, 5)
                         }
@@ -124,6 +126,14 @@ struct ProfileView: View {
                         .padding(.horizontal)
                         .padding(.top, 10)
                         .padding(.bottom, 40)
+                    }
+                }
+            }
+           
+            .task {
+                if let userId = AuthService.shared.currentUserId {
+                    if let profile = try? await FirestoreService.shared.fetchUserProfile(userId: userId) {
+                        userProfile = profile
                     }
                 }
             }

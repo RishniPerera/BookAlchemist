@@ -11,7 +11,7 @@ struct LoginView: View {
     @Binding var isLoggedIn: Bool
     @State private var showError = false
     @State private var errorMessage = ""
-    
+
     var body: some View {
         VStack(spacing: 30) {
             Spacer()
@@ -59,9 +59,21 @@ struct LoginView: View {
                 }
                 
                 Button(action: {
-                    isLoggedIn = true
-                }) {
-                    Text("Login as a guest")
+                        // Connect to Firebase anonymously
+                        Task {
+                            do {
+                                _ = try await AuthService.shared.signInAsGuest()
+                                // Switch to main app on the main thread
+                                DispatchQueue.main.async {
+                                    isLoggedIn = true
+                                }
+                            } catch {
+                                errorMessage = "Failed to sign in: \(error.localizedDescription)"
+                                showError = true
+                            }
+                        }
+                    }) {
+                        Text("Login as a guest")
                         .font(.headline)
                         .foregroundColor(.appTextPrimary)
                         .frame(maxWidth: .infinity)

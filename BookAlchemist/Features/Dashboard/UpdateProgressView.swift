@@ -6,12 +6,18 @@
 //
 
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
 
 struct UpdateProgressView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var currentPage: Double = 195
     let totalPages: Double = 300
+    
+    // State variables to handle saving and fetching real user data
+    @State private var isSaving = false
+    @State private var userProfile: UserProfile?
     
     // Calculate percentage based on slider
     var percentage: Int {
@@ -130,16 +136,27 @@ struct UpdateProgressView: View {
                 // Action Buttons
                 VStack(spacing: 12) {
                     Button(action: {
-                        dismiss()
+                        // NEW: Call the save function
+                        saveProgressAndEarnXP()
                     }) {
-                        Text("Update Progress")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.appPrimary)
-                            .cornerRadius(16)
+                        if isSaving {
+                            ProgressView()
+                                .tint(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.appPrimary)
+                                .cornerRadius(16)
+                        } else {
+                            Text("Update Progress")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.appPrimary)
+                                .cornerRadius(16)
+                        }
                     }
+                    .disabled(isSaving)
                     
                     Button(action: {
                         dismiss()
@@ -165,6 +182,43 @@ struct UpdateProgressView: View {
         .navigationTitle("Update Progress")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.appBackground.ignoresSafeArea())
+        // Fetch user data when the view opens
+        .task {
+            if let userId = AuthService.shared.currentUserId {
+                userProfile = try? await FirestoreService.shared.fetchUserProfile(userId: userId)
+            }
+        }
+    }
+    
+    // The logic function to save to Firebase
+    private func saveProgressAndEarnXP() {
+        guard let userId = AuthService.shared.currentUserId, let profile = userProfile else { return }
+        
+        isSaving = true
+        
+        Task {
+            do {
+                // Award 50 XP for reading
+                let xpEarned = 50
+                
+                // Call the Gamification Service to update Firebase
+                try await GamificationService.shared.addXP(
+                    userId: userId,
+                    amount: xpEarned,
+                    currentXp: profile.xp,
+                    currentStreak: profile.readingStreak // Keep streak same for this example
+                )
+                
+                // Go back to the previous screen
+                DispatchQueue.main.async {
+                    isSaving = false
+                    dismiss()
+                }
+            } catch {
+                print("Failed to update XP: \(error)")
+                isSaving = false
+            }
+        }
     }
     
     // Small helper to keep the HStack clean
