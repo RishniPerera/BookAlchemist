@@ -77,7 +77,20 @@ struct ProfileView: View {
                                 
                                 settingRow(icon: "target", title: "Reading Goal", value: "24 books / year")
                                 Divider().padding(.leading, 45)
-                                settingRow(icon: "clock", title: "Reading Reminder", value: "Daily at 9:00 PM")
+                                
+                                
+                                
+                                settingRow(icon: "clock", title: "Reading Reminder", value: "Daily at 1:00 PM")
+                                    .onTapGesture {
+                                        // 1. Schedule the real daily reminder for 1:00 AM
+                                                // (Wait, 1:00 PM is 01:00 in 24-hour format)
+                                                NotificationService.shared.scheduleReadingReminder(hour: 1, minute: 0)
+                                                
+                                                // Send the 2-minute test notification
+                                                NotificationService.shared.scheduleVivaTestNotification()
+                                            }
+                                
+                                
                                 Divider().padding(.leading, 45)
                                 settingRow(icon: "book", title: "Preferred Genres", value: "Self-Improvement")
                                 Divider().padding(.leading, 45)

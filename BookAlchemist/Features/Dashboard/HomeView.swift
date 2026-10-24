@@ -9,7 +9,7 @@ import SwiftUI
 import FirebaseFirestore
 
 struct HomeView: View {
-    @StateObject private var router = AppRouter()
+    @ObservedObject var router: AppRouter
     
     // Used @State variables instead of let constants
     @State private var userName: String = "Reader"
@@ -349,5 +349,5 @@ struct BookCoverMock: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(router: AppRouter())
 }
