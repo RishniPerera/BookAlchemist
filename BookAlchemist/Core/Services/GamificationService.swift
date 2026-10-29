@@ -15,7 +15,7 @@ class GamificationService {
     let xpPerLevel = 1000
     
     // Firestore reference to save data
-    private let db = Firestore.firestore()
+    private let db = Firestore.firestore(database: "default")
     
     // Calculate the level based on XP
     func calculateLevel(for xp: Int) -> Int {
