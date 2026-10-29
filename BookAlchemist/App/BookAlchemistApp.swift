@@ -28,7 +28,7 @@ struct BookAlchemistApp: App {
     
     // Using AppStorage to track if the user has seen onboarding
       // Default is false for new users
-    @State private var isLoggedIn: Bool = false
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     
     // Track splash screen state
         @State private var isSplashActive: Bool = true
@@ -43,13 +43,15 @@ struct BookAlchemistApp: App {
                                    .transition(.opacity)
                            } else {
                                if isLoggedIn {
+                                   // If logged in, show the main app
                                    MainTabView()
                                } else if hasSeenOnboarding {
+                                   // If not logged in, but saw onboarding, show Login
                                    LoginView(isLoggedIn: $isLoggedIn)
                                } else {
+                                   // Brand new user, show Onboarding first
                                    OnboardingView(isOnboarded: $hasSeenOnboarding)
                                }
-
                     }
             }
         }

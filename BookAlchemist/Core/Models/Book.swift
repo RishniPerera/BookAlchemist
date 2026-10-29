@@ -10,6 +10,8 @@ struct Book: Identifiable, Codable, Hashable {
     var coverURL: String? // Used for AsyncImage from the API
     var totalPages: Int
     
+    // description field to simulate reading pages
+        var description: String?
     // These are for the user's personal library
     var currentPage: Int = 0
     var status: String = "Want to Read"
