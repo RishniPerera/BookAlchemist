@@ -13,4 +13,5 @@ struct UserProfile: Codable {
     var currentLevel: Int = 1
     var xp: Int = 0
     var readingStreak: Int = 0
+    
 }

@@ -111,6 +111,24 @@ struct BookDetailsView: View {
                 }
                 .padding(.horizontal)
                 
+                
+                // "Start Reading Now" button:
+                NavigationLink(destination: UpdateProgressView()) {
+                    Text("Update Reading Progress")
+                        .font(.headline)
+                        .foregroundColor(.appPrimary)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.appPrimary.opacity(0.3), lineWidth: 1)
+                        )
+                }
+                .padding(.horizontal)
+                .padding(.top, 10)
+           
                 // Reading Status Segmented Control
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Reading Status")

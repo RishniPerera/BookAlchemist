@@ -161,6 +161,8 @@ struct ChallengesView: View {
                         
                         Spacer(minLength: 40)
                     }
+                    .frame(maxWidth: 600) // Limits the width on iPad
+                    .frame(maxWidth: .infinity) // Centers it on the screen
                 }
             }
             // Check if the user has already joined when the view loads

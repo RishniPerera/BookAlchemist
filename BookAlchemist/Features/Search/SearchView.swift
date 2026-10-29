@@ -118,6 +118,8 @@ struct SearchView: View {
                         }
                     }
                     .listStyle(.plain)
+                    .frame(maxWidth: 700) // Restrict maximum width
+                    .frame(maxWidth: .infinity, alignment: .center) // Center it on iPad
                 }
             }
             .background(Color.appBackground.ignoresSafeArea())

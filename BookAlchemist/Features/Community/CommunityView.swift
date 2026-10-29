@@ -27,6 +27,14 @@ struct CommunityView: View {
                                 
                                 Spacer()
                                 
+                                // Leaderboard Trophy Button
+                                NavigationLink(destination: LeaderboardView()) {
+                                Image(systemName: "trophy.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.yellow)
+                                    }
+                                    .padding(.trailing, 8)
+                          
                                 // Changed the bell to a "+" button to create a post
                                 Button(action: { showCreatePost = true }) {
                                     Image(systemName: "plus.circle.fill")
@@ -37,7 +45,7 @@ struct CommunityView: View {
                             .padding(.horizontal)
                             .padding(.top, 10)
                             
-                            // Featured Challenge Banner (Kept as is)
+                            // Featured Challenge Banner
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack {
                                     Image(systemName: "trophy.fill")

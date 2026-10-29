@@ -16,9 +16,28 @@ class FirestoreService {
         // Fetch the user profile from Firebase
         func fetchUserProfile(userId: String) async throws -> UserProfile {
             let document = try await db.collection("users").document(userId).getDocument()
+           do {
+               // Try to decode the existing document
             return try document.data(as: UserProfile.self)
         }
-        
+            catch {
+                        // If it fails (missing fields or document doesn't exist), recreate it.
+                        print("DEBUG: Profile missing or corrupted. Creating a fresh one. Error: \(error)")
+                let defaultProfile = UserProfile(
+                                uid: userId,
+                                name: "Reader",
+                                email: "",
+                                currentLevel: 1,
+                                xp: 0,
+                                readingStreak: 0
+                            )
+                        
+                // Save the complete, correct profile to Firebase
+                try await db.collection("users").document(userId).setData(from:defaultProfile)
+                            return defaultProfile
+                        }
+                    }
+     
         // Update XP and Level
         func updateUserStats(userId: String, xp: Int, level: Int) async throws {
             try await db.collection("users").document(userId).updateData([
@@ -62,13 +81,13 @@ class FirestoreService {
            
            // Update the User Profile in Firebase (XP, Level, and Streak)
            let userRef = db.collection("users").document(userId)
-           try await userRef.updateData([
+           try await userRef.setData([
                "xp": newXp,
                "currentLevel": newLevel,
                "readingStreak": currentProfile.readingStreak + 1
            ])
            
-           // eturn the updated profile so the UI can refresh immediately
+           // return the updated profile so the UI can refresh immediately
            var updatedProfile = currentProfile
            updatedProfile.xp = newXp
            updatedProfile.currentLevel = newLevel

@@ -13,6 +13,7 @@ enum AppRoute: Hashable {
     case bookDetails
     case updateProgress
     case challenges
+    case reader(Book)
 }
 
 class AppRouter: ObservableObject {
