@@ -96,7 +96,7 @@ struct BookDetailsView: View {
                 .disabled(isSaving)
                 
                 // Start Reading Button
-                NavigationLink(destination: UpdateProgressView()) {
+                NavigationLink(destination: ReaderView(book: book)) {
                     Text("Start Reading Now")
                         .font(.headline)
                         .foregroundColor(.appPrimary)
