@@ -76,10 +76,13 @@ struct ReaderView: View {
             TabView(selection: $currentPage) {
                 ForEach(0..<pages.count, id: \.self) { index in
                     ScrollView {
-                        // REPLACED Text with the custom SelectableTextView
+                        // Text with the custom SelectableTextView
                             SelectableTextView(text: pages[index], selectedText: $selectedText)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(30)
+                            .scaleEffect(currentPage == index ? 1.0 : 0.95)
+                            .opacity(currentPage == index ? 1.0 : 0.8)
+                            .animation(.easeInOut(duration: 0.3), value: currentPage)
+                            .padding(30)
                                             }
                     .tag(index)
                 }

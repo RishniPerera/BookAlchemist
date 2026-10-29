@@ -12,10 +12,9 @@ struct MyLibraryView: View {
     @State private var savedBooks: [Book] = []
     @State private var isLoading = true
     
-    // Grid layout: 2 columns
+    // change to Adaptive Grid for both iPhone and iPad
     let columns = [
-        GridItem(.flexible()),
-        GridItem(.flexible())
+        GridItem(.adaptive(minimum: 150), spacing: 20)
     ]
     
     var body: some View {
