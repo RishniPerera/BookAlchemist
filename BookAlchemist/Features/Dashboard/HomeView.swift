@@ -17,6 +17,7 @@ struct HomeView: View {
     @State private var userLevel: Int = 1
     @State private var userStreak: Int = 0
     @State private var isLoading = true
+    @State private var discoverBooks: [Book] = []
     
     // Computed properties for the progress bar
     var xpProgress: Double {
@@ -47,7 +48,7 @@ struct HomeView: View {
                                         .tracking(1.5)
                                     
                                     // Uses real userName
-                                    Text("Good Morning, \(userName) 👋")
+                                    Text("Good Morning, \(userName)")
                                         .font(.system(size: 22, weight: .bold, design: .serif))
                                         .foregroundColor(.appTextPrimary)
                                 }
@@ -248,9 +249,47 @@ struct HomeView: View {
                             
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
-                                    BookCoverMock(title: "Echoes of Clay", author: "Elena Rosas", color: .orange)
-                                    BookCoverMock(title: "Brewing Stars", author: "Nicolette Vance", color: .indigo)
-                                    BookCoverMock(title: "The Green Parlor", author: "K. Thorne", color: .green)
+                                    if discoverBooks.isEmpty {
+                                        // Show loading placeholders while API fetches
+                                        ForEach(0..<3) { _ in
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(Color.gray.opacity(0.1))
+                                                .frame(width: 100, height: 150)
+                                        }
+                                    } else {
+                                        ForEach(discoverBooks) { book in
+                                            NavigationLink(destination: BookDetailsView(book: book)) {
+                                                VStack(alignment: .leading, spacing: 8) {
+                                                    // Real Book Cover
+                                                    if let cover = book.coverURL, let url = URL(string: cover) {
+                                                        AsyncImage(url: url) { image in
+                                                            image.resizable().scaledToFill()
+                                                        } placeholder: {
+                                                            ProgressView()
+                                                        }
+                                                        .frame(width: 100, height: 150)
+                                                        .cornerRadius(8)
+                                                        .clipped()
+                                                    } else {
+                                                        RoundedRectangle(cornerRadius: 8)
+                                                            .fill(Color.gray.opacity(0.3))
+                                                            .frame(width: 100, height: 150)
+                                                    }
+                                                    
+                                                    Text(book.title)
+                                                        .font(.caption)
+                                                        .fontWeight(.bold)
+                                                        .foregroundColor(.appTextPrimary)
+                                                        .lineLimit(1)
+                                                    Text(book.author)
+                                                        .font(.caption2)
+                                                        .foregroundColor(.gray)
+                                                        .lineLimit(1)
+                                                }
+                                                .frame(width: 100)
+                                            }
+                                        }
+                                    }
                                 }
                                 .padding(.horizontal)
                             }
@@ -283,9 +322,20 @@ struct HomeView: View {
             .onAppear {
                 listenForUserUpdates()
             }
-        }
-    }
-    
+            
+            // Fetch discover books from the API
+                        .task {
+                            if discoverBooks.isEmpty {
+                                do {
+                                    discoverBooks = try await BookAPIService.shared.fetchDiscoverBooks()
+                                } catch {
+                                    print("Failed to load discover books: \(error)")
+                                }
+                            }
+                        }
+                    }
+                }
+        
     // real-time listener function
     private func listenForUserUpdates() {
         guard let userId = AuthService.shared.currentUserId else {
@@ -294,7 +344,7 @@ struct HomeView: View {
         }
         
         // This connects to Firestore and "listens" for any changes
-        Firestore.firestore().collection("users").document(userId)
+        Firestore.firestore(database: "default").collection("users").document(userId)
             .addSnapshotListener { documentSnapshot, error in
                 guard let document = documentSnapshot, document.exists else {
                     isLoading = false
