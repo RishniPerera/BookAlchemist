@@ -15,6 +15,13 @@ struct ReaderView: View {
     @State private var isFinishing = false
     @State private var showSuccessAlert = false
     
+    // for Natural Language SDK feature
+    @State private var analysisResult: NaturalLanguageService.TextEntities?
+    @State private var showAnalysis = false
+    
+    // Track the text the user highlights
+       @State private var selectedText: String = ""
+   
     // 5 pages of text of the selected book
     var pages: [String] {
         let baseText = book.title + "\n\n" + (book.description ?? "Once upon a time, there was a reader who loved to read. They opened this book and found a world of wonder.")
@@ -46,6 +53,16 @@ struct ReaderView: View {
                     .font(.caption.bold())
                     .foregroundColor(.gray)
                 Spacer()
+                
+                // button to detect natural languages
+                                Button(action: {
+                                    analyzeCurrentPage()
+                                }) {
+                                    Image(systemName: "text.magnifyingglass")
+                                        .foregroundColor(.appPrimary)
+                                        .padding(.horizontal, 8)
+                                }
+            
                 // Page Counter
                 Text("Page \(currentPage + 1) of \(pages.count)")
                     .font(.caption)
@@ -59,17 +76,20 @@ struct ReaderView: View {
             TabView(selection: $currentPage) {
                 ForEach(0..<pages.count, id: \.self) { index in
                     ScrollView {
-                        Text(pages[index])
-                            .font(.system(size: 20, weight: .regular, design: .serif))
-                            .lineSpacing(8)
-                            .padding(30)
-                            .foregroundColor(.appTextPrimary)
-                    }
+                        // REPLACED Text with the custom SelectableTextView
+                            SelectableTextView(text: pages[index], selectedText: $selectedText)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(30)
+                                            }
                     .tag(index)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .background(Color(red: 0.98, green: 0.96, blue: 0.92)) // Book paper color
+            .onChange(of: currentPage) { oldValue, newValue in
+                           selectedText = ""
+                       }
+                       
             
             // Bottom Navigation / Finish Button
             HStack {
@@ -131,7 +151,28 @@ struct ReaderView: View {
         } message: {
             Text("You earned 100 XP and increased your reading streak. Check your profile!")
         }
+        // Present the Text Analysis Sheet
+                .sheet(isPresented: $showAnalysis) {
+                    if let result = analysisResult {
+                        TextAnalysisView(entities: result)
+                    }
+                }
     }
+    
+    // The function that triggers the Natural Language processing
+        private func analyzeCurrentPage() {
+            guard currentPage < pages.count else { return }
+      
+            // Use the selected text if user highlighted something, otherwise use the whole page
+                    let textToAnalyze = selectedText.isEmpty ? pages[currentPage] : selectedText
+            
+            // Pass it to our Natural Language Service
+            let result = NaturalLanguageService.shared.analyzeText(textToAnalyze)
+            
+            // Save the result and trigger the sheet to open
+            analysisResult = result
+            showAnalysis = true
+        }
     
     private func finishBook() {
         guard let userId = AuthService.shared.currentUserId else { return }
@@ -152,6 +193,74 @@ struct ReaderView: View {
             } catch {
                 print("Error finishing book: \(error)")
                 isFinishing = false
+            }
+        }
+    }
+}
+// UITextView Wrapper for Layout & Selection
+struct SelectableTextView: UIViewRepresentable {
+    var text: String
+    @Binding var selectedText: String
+    
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.isScrollEnabled = false
+        textView.backgroundColor = .clear
+        textView.textContainer.widthTracksTextView = true
+        textView.textContainer.lineFragmentPadding = 0
+        
+     
+        let bookFont = UIFont(name: "Georgia", size: 20) ?? UIFont.systemFont(ofSize: 20)
+        textView.font = bookFont
+        textView.textColor = UIColor(Color.appTextPrimary)
+        
+        textView.delegate = context.coordinator
+        return textView
+    }
+    
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        // Create paragraph style for justification and line spacing
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .justified
+        paragraphStyle.lineSpacing = 8 // Nice breathing room between lines
+        
+        // Use the exact same font as makeUIView
+        let bookFont = UIFont(name: "Georgia", size: 20) ?? UIFont.systemFont(ofSize: 20)
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .paragraphStyle: paragraphStyle,
+            .font: bookFont,
+            .foregroundColor: UIColor(Color.appTextPrimary)
+        ]
+        
+        // Apply as an attributed string
+        uiView.attributedText = NSAttributedString(string: text, attributes: attributes)
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(selectedText: $selectedText)
+    }
+    
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
+        let width = proposal.width ?? UIScreen.main.bounds.width
+        let size = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+        return CGSize(width: width, height: size.height)
+    }
+    
+    class Coordinator: NSObject, UITextViewDelegate {
+        var selectedText: Binding<String>
+        
+        init(selectedText: Binding<String>) {
+            self.selectedText = selectedText
+        }
+        
+        func textViewDidChangeSelection(_ textView: UITextView) {
+            if let range = textView.selectedTextRange, !range.isEmpty {
+                selectedText.wrappedValue = textView.text(in: range) ?? ""
+            } else {
+                selectedText.wrappedValue = ""
             }
         }
     }

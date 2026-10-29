@@ -11,7 +11,7 @@ import UIKit // for UIimage
 struct ProfileView: View {
     @State private var userProfile: UserProfile?
     @State private var showEditProfile = false
-    @AppStorage("isLoggedIn") private var isLoggedIn: Bool = false
+    @Binding var isLoggedIn: Bool
     
     // Load the name and image from UserDefaults
         @AppStorage("userDisplayName") private var localName: String = "Reader"
@@ -45,50 +45,49 @@ struct ProfileView: View {
                         VStack(spacing: 12) {
                             
                             // Profile Picture
-                                                        if let uiImage = UIImage(data: localImageData) {
-                                                            Image(uiImage: uiImage)
-                                                                .resizable()
-                                                                .scaledToFill()
-                                                                .frame(width: 90, height: 90)
-                                                                .clipShape(Circle())
-                                                                .overlay(Circle().stroke(Color.appPrimary, lineWidth: 2))
-                                                        } else {
-                                                            Circle()
-                                                                .fill(Color.appPrimary.opacity(0.15))
-                                                                .frame(width: 90, height: 90)
-                                                                .overlay(
-                                                                    Image(systemName: "person.crop.circle.fill")
-                                                                        .resizable()
-                                                                        .foregroundColor(.appPrimary.opacity(0.5))
-                                                                        .padding(5)
-                                                                )
-                                                        }
+                            if let uiImage = UIImage(data: localImageData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 90, height: 90)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.appPrimary, lineWidth: 2))
+                                } else {
+                                Circle()
+                                .fill(Color.appPrimary.opacity(0.15))
+                                .frame(width: 90, height: 90)
+                                .overlay(
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .foregroundColor(.appPrimary.opacity(0.5))
+                                .padding(5)
+                                )
+                            }
                                                         
-                                                        // Name
-                                                        Text(localName.isEmpty ? (userProfile?.name ?? "Reader") : localName)
-                                                            .font(.title2.bold())
+                            // Name
+                            Text(localName.isEmpty ? (userProfile?.name ?? "Reader") : localName)
+                                .font(.title2.bold())
                                                         
-                                                        Text("Member since October 2024")
-                                                            .font(.caption)
-                                                            .foregroundColor(.gray)
+                            Text("Member since October 2024")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                Divider().padding(.horizontal, 40)
                                                         
-                                                        Divider().padding(.horizontal, 40)
-                                                        
-                                                        // Stats Row
-                                                        HStack(spacing: 30) {
-                                                            statItem(value: "17", label: "Books Read")
-                                                            statItem(value: "\(userProfile?.readingStreak ?? 0)d", label: "Streak")
-                                                            statItem(value: "\(userProfile?.currentLevel ?? 1)", label: "Level")
-                                                            statItem(value: "\(userProfile?.xp ?? 0)", label: "Total XP")
-                                                        }
-                                                        .padding(.top, 5)
-                                                    }
-                                                    .padding(.vertical, 24)
-                                                    .frame(maxWidth: .infinity)
-                                                    .background(Color.white)
-                                                    .cornerRadius(20)
-                                                    .shadow(color: .black.opacity(0.03), radius: 8)
-                                                    .padding(.horizontal)
+                            // Stats Row
+                            HStack(spacing: 30) {
+                            statItem(value: "17", label: "Books Read")
+                            statItem(value: "\(userProfile?.readingStreak ?? 0)d", label: "Streak")
+                            statItem(value: "\(userProfile?.currentLevel ?? 1)", label: "Level")
+                            statItem(value: "\(userProfile?.xp ?? 0)", label: "Total XP")
+                                }
+                               .padding(.top, 5)
+                              }
+                               .padding(.vertical, 24)
+                               .frame(maxWidth: .infinity)
+                                .background(Color.white)
+                                .cornerRadius(20)
+                                .shadow(color: .black.opacity(0.03), radius: 8)
+                                .padding(.horizontal)
                                                     
                                                     // Settings Sections
                                                     VStack(alignment: .leading, spacing: 8) {
@@ -228,6 +227,6 @@ struct ProfileView: View {
                             }
 
                             #Preview {
-                                ProfileView()
+                                ProfileView(isLoggedIn: .constant(true))
                             }
 

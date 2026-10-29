@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabView: View {
     // Track which tab is selected (Siri app shortcut)
+        @Binding var isLoggedIn: Bool
         @State private var selectedTab = 0
         @StateObject private var router = AppRouter()
     
@@ -43,7 +44,7 @@ struct MainTabView: View {
                 }
                 .tag(3)
             // Profile
-            ProfileView()
+            ProfileView(isLoggedIn: $isLoggedIn)
                 .tabItem {
                     Label("Profile", systemImage: "person")
                 }
@@ -73,5 +74,5 @@ struct MainTabView: View {
             }
         }
 #Preview {
-    MainTabView()
+    MainTabView(isLoggedIn: .constant(true))
 }
